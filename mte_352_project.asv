@@ -6,7 +6,7 @@ function mte_352_project()
     mu = 0.001002;
     
     d_tube = 0.00525;
-    D = 0.110;
+    D_bottle = 0.110;
     
     epsilon = 1e-6;
     K_entrance = 0.78;
@@ -17,7 +17,7 @@ function mte_352_project()
     p.rho = rho;
     p.mu = mu;
     p.d = d_tube;
-    p.D = D;
+    p.D_bottle = D_bottle;
     p.eps = epsilon;
     p.K = K_entrance;
     p.acceleration_term = acceleration_term;
@@ -55,10 +55,10 @@ function mte_352_project()
 end
 
 function dh_dt = make_ode(h, p)
-    h = max(0, h); 
+    h_calc = max(0, h); 
 
     % Initial guess for velocity with no friction loss
-    V = sqrt((2 * p.g * h) / (p.acceleration_term + p.K));
+    V = sqrt((2 * p.g * h_calc) / (p.acceleration_term + p.K));
     
     tol = 1e-8;
     max_iter = 50;
@@ -79,14 +79,17 @@ function dh_dt = make_ode(h, p)
             f = ( -1.8 * log10(term1^1.11 + term2) )^(-2);
         end
         
-        denominator = p.K + p.acceleration_term + f * (p.L / p.d);
-        V = sqrt( (2 * p.g * h) / denominator );
+        denominator = (p.K + p.acceleration_term) + f * (p.L / p.d);
+        V = sqrt( (2 * p.g * h_calc) / denominator );
         
         err = abs(V - V_old);
         iter = iter + 1;
     end
     
-    dh_dt = -(p.d / p.D)^2 * V;
+    A_tube = pi * (p.d / 2)^2;
+    A_bottle = pi * (p.D_bottle / 2)^2;
+    
+    dh_dt = -(A_tube / A_bottle) * V;
 end
 
 function [value, isterminal, direction] = detectEmpty(t, h)
