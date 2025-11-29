@@ -12,6 +12,7 @@ function mte_352_project()
     K_entrance = 0.78;
     acceleration_term = 1;
     
+    % Structure for drain function
     p.g = g; p.rho = rho; p.mu = mu;
     p.d = d_tube;
     p.D_bottle = D_bottle;
@@ -22,7 +23,7 @@ function mte_352_project()
     L_values = 0.25:-0.04:0.01;
     
     h0 = 0.14;
-    t_span = [0 100];
+    t_span = [0 120];
 
     options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detectEmpty);
 
@@ -35,7 +36,7 @@ function mte_352_project()
     for i = 1:length(L_values)
         p.L = L_values(i);
         
-        [t, h] = ode45(@(t, h) drain_physics(h, p), t_span, h0, options);
+        [t, h] = ode45(@(t, h) make_ode(h, p), t_span, h0, options);
         
         plot(t, h, 'LineWidth', 2, 'Color', colors(i,:), ...
              'DisplayName', sprintf('L = %.2f m', p.L));
@@ -51,7 +52,7 @@ function mte_352_project()
     hold off;
 end
 
-function dh_dt = drain_physics(h, p)
+function dh_dt = make_ode(h, p)
     h_calc = max(0, h); 
 
     % Initial guess for velocity with no friction loss
