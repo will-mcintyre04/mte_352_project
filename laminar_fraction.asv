@@ -76,7 +76,7 @@ function laminar_fraction()
                  'HandleVisibility', 'off'); 
         end
         
-        fprintf('     %.2f       |     %.2f     |      %.2f\n', p.L, t(end), laminar_fraction);
+        fprintf('     %.2f       |     %.2f     |      %.3f\n', p.L, t(end), laminar_fraction);
     end
     grid on;
     xlabel('Time (seconds)');
@@ -88,8 +88,9 @@ function laminar_fraction()
     figure(2); clf;
     plot(L_values, laminar_fraction_results, '-o', 'LineWidth', 2, 'MarkerFaceColor', 'b');
     grid on;
-    xlabel('Straw Length L (m)');
+    xlabel('Tube Length L (m)');
     ylabel('Laminar Fraction (0 to 1)');
+    title('Laminar Flow Fraction vs Length of ');
     ylim([0 1]);
 end
 function V = get_velocity(h, p)
