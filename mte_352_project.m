@@ -32,18 +32,31 @@ function mte_352_project()
     figure(1); clf; hold on;
     colors = lines(length(L_values));
     
-    fprintf('Tube Length (m) | Total Time (s)\n');
-    fprintf('-------------------------------\n');
+    fprintf('Tube Length (m) | Total Time (s) | Laminar Fraction\n');
+    fprintf('---------------------------------------------------\n');
 
     for i = 1:length(L_values)
         p.L = L_values(i);
         
         [t, h] = ode45(@(t, h) make_ode(h, p), t_span, h0, options);
-        
+
+        % Calculate all reynolds numbers
+        Re = zeros(size(h));
+        for k = 1:length(h)
+            Re(k) = calculate_Re(h(k), p);
+        end
+
+        % find index where it switches from turbulent to laminar(Re <2300)
+        idx_laminar = find(Re < 2300, 1);
+
+        time_laminar = t(end) - t(idx_laminar);
+
+        laminar_fraction = time_laminar / t(end);
+
         plot(t, h, 'LineWidth', 2, 'Color', colors(i,:), ...
              'DisplayName', sprintf('L = %.2f m', p.L));
         
-        fprintf('     %.2f       |     %.2f\n', p.L, t(end));
+        fprintf('     %.2f       |     %.2f     |      %.2f\n', p.L, t(end), laminar_fraction);
     end
 
     grid on;
@@ -55,7 +68,6 @@ function mte_352_project()
 end
 
 function V = get_velocity(h, p)
-
     % Initial guess for velocity with no friction loss
     denom = p.acceleration_term + p.K;
     if (denom == 0)
@@ -88,6 +100,12 @@ function V = get_velocity(h, p)
         err = abs(V - V_old);
         iter = iter + 1;
     end
+end
+
+function Re = calculate_Re(h, p)
+    h = max(0, h);
+    V = get_velocity(h, p);
+    Re = p.rho * V * p.d / p.mu;
 end
 
 function dh_dt = make_ode(h, p)
