@@ -9,8 +9,8 @@ function mte_352_project()
     D = 0.110;
     
     epsilon = 1e-6;
-    K_entrance = 0.78;
-    acceleration_term = 1;
+    K_entrance = 0;
+    acceleration_term = 0;
     
     % Structure for drain function
     p.g = g;
@@ -25,7 +25,7 @@ function mte_352_project()
     L_values = 0.25:-0.04:0.01;
     
     h0 = 0.14;
-    t_span = [0 300];
+    t_span = [0 120];
 
     options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detectEmpty);
 
@@ -57,7 +57,11 @@ end
 function V = get_velocity(h, p)
 
     % Initial guess for velocity with no friction loss
-    V = sqrt((2 * p.g * h) / (p.acceleration_term + p.K));
+    denom = p.acceleration_term + p.K;
+    if (denom == 0)
+        denom = 1e-8;
+    end
+    V = sqrt((2 * p.g * h) / denom);
     
     tol = 1e-8;
     max_iter = 50;
