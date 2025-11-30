@@ -25,7 +25,7 @@ function mte_352_project()
     L_values = 0.25:-0.04:0.01;
     
     h0 = 0.14;
-    t_span = [0 120];
+    t_span = [0 300];
 
     options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detectEmpty);
 
@@ -54,8 +54,7 @@ function mte_352_project()
     hold off;
 end
 
-function dh_dt = make_ode(h, p)
-    h = max(0, h); 
+function V = get_velocity(h, p)
 
     % Initial guess for velocity with no friction loss
     V = sqrt((2 * p.g * h) / (p.acceleration_term + p.K));
@@ -85,12 +84,16 @@ function dh_dt = make_ode(h, p)
         err = abs(V - V_old);
         iter = iter + 1;
     end
-    
+end
+
+function dh_dt = make_ode(h, p)
+    h = max(0, h); 
+    V = get_velocity(h, p);
     dh_dt = -(p.d / p.D)^2 * V;
 end
 
 function [value, isterminal, direction] = detectEmpty(t, h)
-    value = h;
+    value = h - 1e-3;
     isterminal = 1;
     direction = -1;
 end
