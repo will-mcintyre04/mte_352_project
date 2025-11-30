@@ -1,4 +1,7 @@
 function laminar_fraction()
+    
+    addpath("Functions\");
+
     % Constants
     g = 9.81;
     rho = 998;
@@ -24,8 +27,9 @@ function laminar_fraction()
     
     h0 = 0.14;
     t_span = [0 120];
-    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detectEmpty);
-    figure(1); clf; hold on;
+    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty);
+    figure(3); clf; hold on;
+    set(gcf, 'Color', "white", "Name", "Drainage Profiles Laminar Fraction");
     colors = lines(length(L_values));
     
     fprintf('Tube Length (m) | Total Time (s) | Laminar Fraction\n');
@@ -75,72 +79,11 @@ function laminar_fraction()
         
         fprintf('     %.2f       |     %.2f     |      %.2f\n', p.L, t(end), laminar_fraction);
     end
+
     grid on;
     xlabel('Time (seconds)');
     ylabel('Water Height (m)');
     title('Drainage Profiles (Square = Re<4000, Red Circle = Re<2300)');
     legend('show');
     hold off;
-end
-function V = get_velocity(h, p)
-    % Initial guess for velocity with no friction loss
-    denom = p.acceleration_term + p.K;
-    if (denom == 0)
-        denom = 1e-8;
-    end
-    V = sqrt((2 * p.g * h) / denom);
-    
-    tol = 1e-8;
-    max_iter = 50;
-    err = 1;
-    iter = 0;
-    
-    % Iterate to find the correct velocity for a given height
-    while err > tol && iter < max_iter
-        V_old = V;
-        
-        Re = (p.rho * V * p.d) / p.mu;
-        
-        if Re < 2300
-            % Laminar
-            f = 64 / max(Re, 0.1); 
-        elseif Re > 4000
-            % Turbulent (Haaland)
-            term1 = (p.eps / p.d) / 3.7;
-            term2 = 6.9 / Re;
-            f = ( -1.8 * log10(term1^1.11 + term2) )^(-2);
-        else
-            % Transition Zone (2300 <= Re <= 4000)
-            % Linear Interpolation logic
-            f_2300 = 64 / 2300;
-        
-            term1 = (p.eps / p.d) / 3.7;
-            term2 = 6.9 / 4000;
-            f_4000 = ( -1.8 * log10(term1^1.11 + term2) )^(-2);
-            
-            ratio = (Re - 2300) / (4000 - 2300);
-            f = f_2300 + ratio * (f_4000 - f_2300);
-        end
-        
-        denominator = p.K + p.acceleration_term + f * (p.L / p.d);
-        V = sqrt( (2 * p.g * h) / denominator );
-        
-        err = abs(V - V_old);
-        iter = iter + 1;
-    end
-end
-function Re = calculate_Re(h, p)
-    h = max(0, h);
-    V = get_velocity(h, p);
-    Re = p.rho * V * p.d / p.mu;
-end
-function dh_dt = make_ode(h, p)
-    h = max(0, h); 
-    V = get_velocity(h, p);
-    dh_dt = -(p.d / p.D)^2 * V;
-end
-function [value, isterminal, direction] = detectEmpty(t, h)
-    value = h - 1e-3;
-    isterminal = 1;
-    direction = -1;
 end
