@@ -5,7 +5,7 @@ function drainage_time()
     % Constants
     g = 9.81;
     rho = 998;
-    mu = 0.001003;
+    mu = 0.001002;
     
     d_tube = 0.00525;
     D = 0.110;
@@ -27,7 +27,7 @@ function drainage_time()
     
     h0 = 0.14;
     t_span = [0 300];
-    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty, 'MaxStep', 0.01);
+    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty);
 
     drainage_times = zeros(size(L_values));
     
