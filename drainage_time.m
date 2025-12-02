@@ -27,7 +27,7 @@ function drainage_time()
     
     h0 = 0.14;
     t_span = [0 300];
-    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty);
+    options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty, 'MaxStep', 0.01);
 
     drainage_times = zeros(size(L_values));
     
