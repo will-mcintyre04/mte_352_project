@@ -5,7 +5,7 @@ function drainage_profiles()
     % Constants
     g = 9.81;
     rho = 998;
-    mu = 0.001002;
+    mu = 0.001003;
     
     d_tube = 0.00525;
     D = 0.110;
@@ -26,9 +26,9 @@ function drainage_profiles()
     L_values = 0.25:-0.04:0.01;
     
     h0 = 0.14;
-    t_span = [0 120];
+    t_span = [0 300];
     options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty);
-    figure(1); clf; hold on;
+    figure(2); clf; hold on;
     set(gcf, 'Color', "white", "Name", "Drainage Profiles");
     colors = lines(length(L_values));
     

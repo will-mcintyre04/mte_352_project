@@ -5,7 +5,7 @@ function laminar_fraction()
     % Constants
     g = 9.81;
     rho = 998;
-    mu = 0.001002;
+    mu = 0.001003;
     
     d_tube = 0.00525;
     D = 0.110;
