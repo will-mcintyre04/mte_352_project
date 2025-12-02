@@ -26,9 +26,9 @@ function drainage_profiles()
     L_values = 0.25:-0.04:0.01;
     
     h0 = 0.14;
-    t_span = [0 300];
+    t_span = [0 150];
     options = odeset('RelTol', 1e-5, 'AbsTol', 1e-6, 'Events', @detect_empty, 'MaxStep', 0.01);
-    figure(2); clf; hold on;
+    figure(1); clf; hold on;
     set(gcf, 'Color', "white", "Name", "Drainage Profiles");
     colors = lines(length(L_values));
     
@@ -46,6 +46,7 @@ function drainage_profiles()
         fprintf('     %.2f       |     %.2f\n', p.L, t(end));
     end
     grid on;
+    xlim(t_span)
     xlabel('Time (seconds)');
     ylabel('Water Height (m)');
     title('Drainage Profiles');
